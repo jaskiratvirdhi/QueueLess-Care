@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueueLess Care – Smart Hospital Queue Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary-blue: #2563eb; --light-blue: #eff6ff; }
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border-top-color: #2563eb; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="showPage('home')">
+                <i class="fas fa-hand-holding-medical text-blue-600 text-2xl"></i>
+                <span class="font-bold text-xl tracking-tight">QueueLess<span class="text-blue-600">Care</span></span>
+            </div>
+            <div class="hidden md:flex space-x-6 font-medium">
+                <button onclick="showPage('home')" class="hover:text-blue-600">Home</button>
+                <button onclick="showPage('queue')" class="hover:text-blue-600">Check Queue</button>
+                <button onclick="showPage('emergency')" class="hover:text-blue-600 text-red-500">Emergency</button>
+                <button onclick="showPage('nearby')" class="hover:text-blue-600">Nearby Hospitals</button>
+                <button onclick="showPage('admin')" class="hover:text-blue-600">Admin</button>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <section id="home" class="page active">
+        <div class="bg-blue-600 text-white py-20 px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4">Reduce Hospital Waiting Time</h1>
+            <p class="text-xl mb-8 opacity-90">AI-Powered Smart Queue System for Government Hospitals</p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="showPage('queue')" class="bg-white text-blue-600 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-gray-100 transition">Check Waiting Time</button>
+                <button onclick="showPage('emergency')" class="bg-red-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-red-600 transition">Emergency Priority</button>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto py-16 px-4">
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div>
+                    <h2 class="text-3xl font-bold mb-4">The Problem</h2>
+                    <p class="text-gray-600 text-lg leading-relaxed">Government hospitals often face 4–8 hour waiting times. Crowded corridors and lack of information lead to patient frustration and delayed critical care.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-sm border-l-4 border-blue-600">
+                    <h3 class="text-2xl font-bold mb-4">Our Solution</h3>
+                    <p class="text-gray-600">QueueLess Care predicts wait times, triages symptoms automatically, and redirects patients to less crowded facilities nearby.</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg text-center shadow-sm">
+                    <i class="fas fa-robot text-4xl text-blue-500 mb-4"></i>
+                    <h3 class="font-bold text-xl mb-2">AI Priority</h3>
+                    <p class="text-sm text-gray-500">Smart triage system ensures critical patients see doctors first.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg text-center shadow-sm">
+                    <i class="fas fa-map-marked-alt text-4xl text-blue-500 mb-4"></i>
+                    <h3 class="font-bold text-xl mb-2">Smart Redirect</h3>
+                    <p class="text-sm text-gray-500">Real-time crowd monitoring across local government centers.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg text-center shadow-sm">
+                    <i class="fas fa-clock text-4xl text-blue-500 mb-4"></i>
+                    <h3 class="font-bold text-xl mb-2">Live Tracking</h3>
+                    <p class="text-sm text-gray-500">Get your token and track your position from your mobile phone.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="queue" class="page max-w-2xl mx-auto py-12 px-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl">
+            <h2 class="text-3xl font-bold mb-6 text-center text-blue-600">Check Waiting Time</h2>
+            <form id="queueForm" class="space-y-4">
+                <div>
+                    <label class="block font-semibold mb-1">Select Hospital</label>
+                    <select id="qHospital" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-400" required>
+                        <option value="City Central Hospital">City Central Hospital</option>
+                        <option value="District General">District General</option>
+                        <option value="West Health Center">West Health Center</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1">Department</label>
+                    <select id="qDept" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-400">
+                        <option>General Medicine</option>
+                        <option>Pediatrics</option>
+                        <option>Orthopedics</option>
+                        <option>Cardiology</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition">Analyze Wait Time</button>
+            </form>
+
+            <div id="queueResult" class="hidden mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-600">Estimated Wait:</span>
+                    <span id="waitTime" class="text-2xl font-bold text-blue-600">--</span>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-600">Queue Position:</span>
+                    <span id="queuePos" class="text-xl font-bold">--</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-4 text-center">Based on current crowd levels and available doctors.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="emergency" class="page max-w-2xl mx-auto py-12 px-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl border-t-8 border-red-500">
+            <h2 class="text-3xl font-bold mb-2 text-center text-red-600">Priority Assessment</h2>
+            <p class="text-center text-gray-500 mb-8">Select symptoms for immediate triage</p>
+            
+            <div id="symptomGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-red-50 transition">
+                    <input type="checkbox" value="10" class="symptom-check w-5 h-5 text-red-600 mr-3"> Chest Pain
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-red-50 transition">
+                    <input type="checkbox" value="9" class="symptom-check w-5 h-5 text-red-600 mr-3"> Breathing Difficulty
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-red-50 transition">
+                    <input type="checkbox" value="8" class="symptom-check w-5 h-5 text-red-600 mr-3"> Accident / Injury
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-red-50 transition">
+                    <input type="checkbox" value="7" class="symptom-check w-5 h-5 text-red-600 mr-3"> Pregnancy Emergency
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-red-50 transition">
+                    <input type="checkbox" value="5" class="symptom-check w-5 h-5 text-red-600 mr-3"> High Fever
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-red-50 transition">
+                    <input type="checkbox" value="1" class="symptom-check w-5 h-5 text-red-600 mr-3"> Normal Checkup
+                </label>
+            </div>
+
+            <button onclick="analyzePriority()" class="w-full bg-red-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition">Get Priority Token</button>
+
+            <div id="priorityAlert" class="hidden mt-6 p-6 rounded-xl text-center font-bold text-xl"></div>
+        </div>
+    </section>
+
+    <section id="nearby" class="page max-w-4xl mx-auto py-12 px-4">
+        <h2 class="text-3xl font-bold mb-8 text-center">Nearby Facilities</h2>
+        <div id="hospitalList" class="grid gap-6">
+            </div>
+    </section>
+
+    <section id="admin" class="page max-w-6xl mx-auto py-12 px-4">
+        <div id="adminLogin" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6">Admin Access</h2>
+            <input type="text" placeholder="Username" class="w-full border p-3 mb-4 rounded">
+            <input type="password" placeholder="Password" class="w-full border p-3 mb-6 rounded">
+            <button onclick="loginAdmin()" class="w-full bg-gray-800 text-white py-3 rounded font-bold">Login</button>
+        </div>
+
+        <div id="adminPanel" class="hidden">
+            <h2 class="text-3xl font-bold mb-8">Admin Dashboard</h2>
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded shadow border-b-4 border-blue-500">
+                    <h3 class="text-gray-500 font-bold uppercase text-xs">Total Patients</h3>
+                    <p class="text-3xl font-bold">142</p>
+                </div>
+                <div class="bg-white p-6 rounded shadow border-b-4 border-red-500">
+                    <h3 class="text-gray-500 font-bold uppercase text-xs">Active Emergencies</h3>
+                    <p class="text-3xl font-bold">3</p>
+                </div>
+                <div class="bg-white p-6 rounded shadow border-b-4 border-green-500">
+                    <h3 class="text-gray-500 font-bold uppercase text-xs">Avg Wait Time</h3>
+                    <p class="text-3xl font-bold">45m</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-100 border-b">
+                        <tr>
+                            <th class="p-4">Patient ID</th>
+                            <th class="p-4">Priority</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-4">#QL-901</td>
+                            <td class="p-4"><span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold">HIGH</span></td>
+                            <td class="p-4">In Triage</td>
+                            <td class="p-4"><button class="text-blue-600 underline">Update</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-900 text-white py-12 mt-20 px-4">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+            <div>
+                <h4 class="font-bold text-xl mb-4">QueueLess Care</h4>
+                <p class="text-gray-400">Revolutionizing government healthcare through smart logistics and AI.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-xl mb-4">Quick Links</h4>
+                <ul class="text-gray-400 space-y-2">
+                    <li><a href="#" class="hover:text-white">API Docs</a></li>
+                    <li><a href="#" class="hover:text-white">Hospital Partners</a></li>
+                    <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-xl mb-4">Developer</h4>
+                <p class="text-gray-400">Created by AI Lab Teams 2026</p>
+                <div class="mt-4 flex space-x-4">
+                    <i class="fab fa-github text-xl"></i>
+                    <i class="fab fa-linkedin text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample Hospital Dataset
+        const hospitals = [
+            { name: "City Central Hospital", distance: "0.8 km", crowd: "HIGH", wait: 240 },
+            { name: "District General Hospital", distance: "2.4 km", crowd: "MODERATE", wait: 90 },
+            { name: "West Health Center", distance: "3.1 km", crowd: "LOW", wait: 15 },
+            { name: "Apex Medicare", distance: "5.0 km", crowd: "LOW", wait: 10 }
+        ];
+
+        // Page Navigation Logic
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+            if(pageId === 'nearby') renderNearby();
+        }
+
+        // Logic: Patient Queue Checker
+        document.getElementById('queueForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = '<div class="loader w-6 h-6 border-4 border-white rounded-full mx-auto"></div>';
+            
+            setTimeout(() => {
+                btn.innerHTML = 'Analyze Wait Time';
+                const hospital = hospitals.find(h => h.name === document.getElementById('qHospital').value);
+                document.getElementById('queueResult').classList.remove('hidden');
+                document.getElementById('waitTime').innerText = hospital.wait + " mins";
+                document.getElementById('queuePos').innerText = Math.floor(Math.random() * 50) + 5;
+                
+                if(hospital.crowd === 'HIGH') {
+                    alert("⚠️ High Crowd Alert: Consider visiting District General for faster service.");
+                }
+            }, 1500);
+        });
+
+        // AI Logic Simulation: Priority Detection
+        function analyzePriority() {
+            let maxScore = 0;
+            document.querySelectorAll('.symptom-check:checked').forEach(cb => {
+                maxScore = Math.max(maxScore, parseInt(cb.value));
+            });
+
+            const alertBox = document.getElementById('priorityAlert');
+            alertBox.classList.remove('hidden', 'bg-red-100', 'bg-yellow-100', 'bg-green-100', 'text-red-700', 'text-yellow-700', 'text-green-700');
+
+            if (maxScore >= 8) {
+                alertBox.innerText = "🚨 HIGH PRIORITY: Go to Emergency Desk Immediately!";
+                alertBox.classList.add('bg-red-100', 'text-red-700');
+            } else if (maxScore >= 4) {
+                alertBox.innerText = "⚠️ MODERATE PRIORITY: Waiting time approx 30 mins.";
+                alertBox.classList.add('bg-yellow-100', 'text-yellow-700');
+            } else if (maxScore > 0) {
+                alertBox.innerText = "✅ NORMAL PRIORITY: Standard queue assigned.";
+                alertBox.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                alert("Please select at least one symptom.");
+                alertBox.classList.add('hidden');
+            }
+        }
+
+        // Logic: Nearby Hospital Recommendations
+        function renderNearby() {
+            const container = document.getElementById('hospitalList');
+            container.innerHTML = hospitals.map(h => `
+                <div class="bg-white p-6 rounded-xl shadow-sm flex justify-between items-center border-l-8 ${h.crowd === 'HIGH' ? 'border-red-500' : 'border-green-500'}">
+                    <div>
+                        <h3 class="font-bold text-xl">${h.name}</h3>
+                        <p class="text-gray-500"><i class="fas fa-map-marker-alt"></i> ${h.distance}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="block font-bold ${h.crowd === 'HIGH' ? 'text-red-600' : 'text-green-600'}">${h.crowd} CROWD</span>
+                        <button class="mt-2 text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold">Select</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Simple Admin Logic
+        function loginAdmin() {
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+        }
+
+        // Mobile Menu
+        document.getElementById('menuBtn').addEventListener('click', () => {
+            alert("Mobile Menu functionality would open a side-drawer here.");
+        });
+    </script>
+</body>
+</html>
